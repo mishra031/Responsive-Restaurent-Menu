@@ -1,5 +1,4 @@
-  <style>
-    body {
+body {
       box-sizing: border-box;
     }
     
@@ -84,4 +83,5 @@
       margin: 1rem auto;
       border-radius: 2px;
     }
-  </style>
+  
+
