@@ -1,5 +1,4 @@
- <script>
-    const defaultConfig = {
+const defaultConfig = {
       background_color: '#fff0f6',
       surface_color: '#ffffff',
       text_color: '#831843',
@@ -227,4 +226,4 @@
         ])
       });
     }
-  </script>
+ 
