@@ -1,79 +1,1696 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Spice Garden</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spice Garden - Fine Dining Restaurant</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-<!-- HEADER -->
-<header class="header">
-  <div>
-    <h1 id="restaurantName">Spice Garden</h1>
-    <p id="tagline">Authentic Indian Flavors with a Modern Twist</p>
-  </div>
-  <div class="cart-icon" onclick="toggleCart()">
-    🛒 <span id="headerCartCount">0</span>
-  </div>
-</header>
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+    }
 
-<p class="top-info">
-  <span id="topOpeningHours"></span> |
-  <span id="topContactInfo"></span>
-</p>
+    .main-wrapper {
+      width: 100%;
+      min-height: 100%;
+      background: linear-gradient(to bottom, #0f1419, #1a2332);
+      overflow-y: auto;
+    }
 
-<!-- FILTER -->
-<div class="filters">
-  <button class="filter-btn active" onclick="filterMenu('all')">All</button>
-  <button class="filter-btn" onclick="filterMenu('veg')">Veg</button>
-  <button class="filter-btn" onclick="filterMenu('non-veg')">Non-Veg</button>
-</div>
+    /* Header Styles */
+    .top-bar {
+      background: rgba(0,0,0,0.9);
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
+    }
 
-<!-- MENU -->
-<section class="menu">
-  <div class="menu-item" data-category="veg">
-    <h3>Paneer Butter Masala</h3>
-    <p>₹220</p>
-    <button onclick="addToCart('Paneer Butter Masala',220)">Add</button>
-  </div>
+    .top-bar-info {
+      display: flex;
+      gap: 2rem;
+      color: #d4af37;
+      font-size: 0.9rem;
+    }
 
-  <div class="menu-item" data-category="non-veg">
-    <h3>Chicken Biryani</h3>
-    <p>₹260</p>
-    <button onclick="addToCart('Chicken Biryani',260)">Add</button>
-  </div>
-</section>
+    .top-bar-info span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-<!-- CART -->
-<div id="cartOverlay" class="cart-overlay">
-  <div class="cart">
-    <h2>Your Cart</h2>
+    .social-links {
+      display: flex;
+      gap: 1rem;
+    }
 
-    <div id="cartItemsContainer"></div>
+    .social-link {
+      color: #d4af37;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
 
-    <div id="cartFooter">
-      <p>Subtotal: <span id="subtotal"></span></p>
-      <p>GST (5%): <span id="gst"></span></p>
-      <h3>Total: <span id="totalAmount"></span></h3>
+    .social-link:hover {
+      color: #fff;
+    }
 
-      <input id="deliveryAddress" placeholder="Delivery Address" />
-      <input id="deliveryPhone" placeholder="Phone Number" />
-      <button onclick="processOrder()">Place Order</button>
+    .header {
+      background: rgba(0,0,0,0.95);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .logo-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .restaurant-name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #d4af37;
+      letter-spacing: 1px;
+      margin-bottom: 0.25rem;
+    }
+
+    .tagline {
+      font-size: 0.9rem;
+      color: #aaa;
+      font-style: italic;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .cart-button {
+      background: #d4af37;
+      color: #000;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .cart-button:hover {
+      background: #c19a2e;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212,175,55,0.4);
+    }
+
+    .cart-icon {
+      font-size: 1.2rem;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #dc3545;
+      color: #fff;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    /* Navigation */
+    .nav-menu {
+      background: rgba(0,0,0,0.9);
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 99;
+    }
+
+    .nav-item {
+      color: #fff;
+      text-decoration: none;
+      padding: 1rem 1.5rem;
+      transition: all 0.3s;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(212,175,55,0.1);
+      border-bottom-color: #d4af37;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), 
+                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><rect fill="%23d4af37" opacity="0.1" width="1200" height="400"/></svg>');
+      background-size: cover;
+      background-position: center;
+      padding: 5rem 2rem;
+      text-align: center;
+      color: #fff;
+    }
+
+    .hero h2 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.8;
+      color: #ddd;
+    }
+
+    /* Filter Section */
+    .filter-section {
+      padding: 2rem;
+      text-align: center;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .filter-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.75rem 2rem;
+      border: 2px solid #d4af37;
+      background: transparent;
+      color: #d4af37;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: #d4af37;
+      color: #000;
+    }
+
+    /* Menu Container */
+    .menu-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .category-section {
+      margin-bottom: 4rem;
+    }
+
+    .category-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      border-bottom: 2px solid rgba(212,175,55,0.3);
+      padding-bottom: 1rem;
+    }
+
+    .category-title {
+      font-size: 2.5rem;
+      color: #d4af37;
+      margin-bottom: 0.5rem;
+      font-weight: 300;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .category-subtitle {
+      color: #aaa;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Menu Grid */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 2rem;
+    }
+
+    .menu-item {
+      background: linear-gradient(135deg, rgba(26,35,50,0.9), rgba(15,20,25,0.9));
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 10px;
+      padding: 2rem;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .menu-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(212,175,55,0.2);
+      border-color: #d4af37;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      gap: 1rem;
+    }
+
+    .item-name {
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .item-badges {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .badge {
+      padding: 0.35rem 0.8rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .veg-badge {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .non-veg-badge {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .bestseller-badge {
+      background: #d4af37;
+      color: #000;
+    }
+
+    .item-description {
+      color: #ccc;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .item-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .item-price {
+      font-size: 1.8rem;
+      color: #d4af37;
+      font-weight: 700;
+    }
+
+    .spice-level {
+      font-size: 0.9rem;
+      color: #ff6b6b;
+    }
+
+    .add-to-cart {
+      background: #d4af37;
+      color: #000;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .add-to-cart:hover {
+      background: #c19a2e;
+      transform: scale(1.05);
+    }
+
+    /* Combos Section */
+    .combo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 2rem;
+    }
+
+    .combo-item {
+      background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(26,35,50,0.9));
+      border: 2px solid #d4af37;
+      border-radius: 10px;
+      padding: 2.5rem;
+      position: relative;
+    }
+
+    .combo-tag {
+      position: absolute;
+      top: -15px;
+      right: 20px;
+      background: #dc3545;
+      color: #fff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .combo-title {
+      font-size: 1.8rem;
+      color: #d4af37;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .combo-items {
+      color: #fff;
+      margin-bottom: 1.5rem;
+      line-height: 2;
+      font-size: 1rem;
+    }
+
+    .combo-items div {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
+    }
+
+    .combo-items div:last-child {
+      border-bottom: none;
+    }
+
+    .combo-price {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid rgba(212,175,55,0.3);
+    }
+
+    .original-price {
+      text-decoration: line-through;
+      color: #999;
+      font-size: 1.3rem;
+    }
+
+    .combo-final-price {
+      font-size: 2.2rem;
+      color: #28a745;
+      font-weight: 700;
+    }
+
+    .combo-add-button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #d4af37;
+      border: none;
+      border-radius: 5px;
+      color: #000;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+    }
+
+    .combo-add-button:hover {
+      background: #c19a2e;
+      transform: scale(1.02);
+    }
+
+    /* Cart Modal */
+    .cart-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cart-overlay.active {
+      display: flex;
+    }
+
+    .cart-modal {
+      background: linear-gradient(135deg, #1a2332, #0f1419);
+      width: 90%;
+      max-width: 600px;
+      max-height: 90%;
+      border-radius: 10px;
+      border: 2px solid #d4af37;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid rgba(212,175,55,0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-header h2 {
+      color: #d4af37;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .close-cart {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .close-cart:hover {
+      color: #d4af37;
+      transform: rotate(90deg);
+    }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background: rgba(26,35,50,0.5);
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(212,175,55,0.1);
+      padding: 0.5rem;
+      border-radius: 5px;
+    }
+
+    .qty-btn {
+      background: #d4af37;
+      border: none;
+      color: #000;
+      width: 30px;
+      height: 30px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .qty-btn:hover {
+      background: #c19a2e;
+    }
+
+    .qty-display {
+      color: #fff;
+      font-weight: 600;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .cart-item-price {
+      color: #d4af37;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .remove-item {
+      background: #dc3545;
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .remove-item:hover {
+      background: #c82333;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 3rem;
+      color: #999;
+    }
+
+    .empty-cart-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .cart-footer {
+      border-top: 2px solid rgba(212,175,55,0.3);
+      padding: 1.5rem 2rem;
+    }
+
+    .cart-summary {
+      margin-bottom: 1.5rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .summary-row.total {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #d4af37;
+      border-top: 2px solid rgba(212,175,55,0.3);
+      margin-top: 1rem;
+      padding-top: 1rem;
+    }
+
+    .checkout-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .delivery-input {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(26,35,50,0.5);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 5px;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .delivery-input:focus {
+      outline: none;
+      border-color: #d4af37;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      padding: 1.2rem;
+      background: #28a745;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+    }
+
+    .checkout-btn:hover {
+      background: #218838;
+      transform: scale(1.02);
+    }
+
+    .checkout-btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Success Message */
+    .success-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #1a2332, #0f1419);
+      border: 2px solid #28a745;
+      padding: 3rem 4rem;
+      border-radius: 10px;
+      z-index: 10001;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .success-icon {
+      font-size: 4rem;
+      color: #28a745;
+      margin-bottom: 1rem;
+    }
+
+    .success-text {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-subtext {
+      color: #999;
+      font-size: 1rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: #000;
+      color: #fff;
+      padding: 3rem 2rem;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-sections {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-section h3 {
+      color: #d4af37;
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .footer-section p, .footer-section a {
+      color: #aaa;
+      line-height: 2;
+      text-decoration: none;
+      display: block;
+    }
+
+    .footer-section a:hover {
+      color: #d4af37;
+    }
+
+    .footer-disclaimer {
+      border-top: 1px solid rgba(212,175,55,0.2);
+      padding-top: 2rem;
+      margin-top: 2rem;
+      text-align: center;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    .thank-you {
+      font-size: 1.1rem;
+      color: #d4af37;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .top-bar {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .hero h2 {
+        font-size: 2rem;
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .combo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .nav-item {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .cart-modal {
+        width: 95%;
+        max-height: 95%;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="main-wrapper"><!-- Top Bar -->
+   <div class="top-bar">
+    <div class="top-bar-info"><span id="topOpeningHours">Open Daily: 11:00 AM - 11:00 PM</span> <span id="topContactInfo">Call: +91 98765 43210</span>
     </div>
-
-    <button class="close-btn" onclick="toggleCart()">Close</button>
+    <div class="social-links"><a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-link">Facebook</a> <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-link">Instagram</a> <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="social-link">Twitter</a>
+    </div>
+   </div><!-- Header -->
+   <header class="header">
+    <div class="logo-section">
+     <h1 class="restaurant-name" id="restaurantName">Spice Garden</h1>
+     <p class="tagline" id="tagline">Authentic Indian Flavors with a Modern Twist</p>
+    </div>
+    <div class="header-actions"><button class="cart-button" onclick="toggleCart()"> <span class="cart-icon">🛒</span> <span>Cart</span> <span class="cart-badge" id="headerCartCount" style="display: none;">0</span> </button>
+    </div>
+   </header><!-- Navigation -->
+   <nav class="nav-menu"><a href="#starters" class="nav-item">Starters</a> <a href="#mains" class="nav-item">Main Course</a> <a href="#beverages" class="nav-item">Beverages</a> <a href="#desserts" class="nav-item">Desserts</a> <a href="#specials" class="nav-item">Chef's Special</a> <a href="#combos" class="nav-item">Combos</a>
+   </nav><!-- Hero Section -->
+   <section class="hero">
+    <h2>Welcome to Culinary Excellence</h2>
+    <p>Experience the finest blend of traditional recipes and contemporary cuisine. Every dish tells a story of passion and perfection, crafted with the freshest ingredients and authentic spices.</p>
+   </section><!-- Filter Section -->
+   <section class="filter-section">
+    <div class="filter-buttons"><button class="filter-btn active" onclick="filterMenu('all')">All Items</button> <button class="filter-btn" onclick="filterMenu('veg')">Vegetarian</button> <button class="filter-btn" onclick="filterMenu('non-veg')">Non-Vegetarian</button> <button class="filter-btn" onclick="filterMenu('bestseller')">Best Sellers</button>
+    </div>
+   </section><!-- Menu Container -->
+   <div class="menu-container"><!-- Starters -->
+    <section class="category-section" id="starters">
+     <div class="category-header">
+      <h2 class="category-title">Appetizers &amp; Starters</h2>
+      <p class="category-subtitle">Begin your culinary journey with our exquisite starters</p>
+     </div>
+     <div class="menu-grid">
+      <div class="menu-item" data-category="veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Paneer Tikka</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span> <span class="badge bestseller-badge">Best Seller</span>
+        </div>
+       </div>
+       <p class="item-description">Cottage cheese marinated in aromatic spices and grilled to perfection with bell peppers and onions</p>
+       <div class="item-footer"><span class="item-price">₹280</span> <span class="spice-level">Spicy: Medium</span> <button class="add-to-cart" onclick="addToCart('Paneer Tikka', 280, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="non-veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Chicken Tikka</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span> <span class="badge bestseller-badge">Best Seller</span>
+        </div>
+       </div>
+       <p class="item-description">Succulent chicken pieces marinated in yogurt and spices, char-grilled in tandoor oven</p>
+       <div class="item-footer"><span class="item-price">₹320</span> <span class="spice-level">Spicy: High</span> <button class="add-to-cart" onclick="addToCart('Chicken Tikka', 320, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Veg Spring Rolls</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Crispy golden rolls stuffed with fresh vegetables and oriental spices</p>
+       <div class="item-footer"><span class="item-price">₹200</span> <span class="spice-level">Spicy: Mild</span> <button class="add-to-cart" onclick="addToCart('Veg Spring Rolls', 200, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="non-veg">
+       <div class="item-header">
+        <h3 class="item-name">Fish Amritsari</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Batter-fried fish fillets with carom seeds and traditional Punjabi spices</p>
+       <div class="item-footer"><span class="item-price">₹380</span> <span class="spice-level">Spicy: Medium</span> <button class="add-to-cart" onclick="addToCart('Fish Amritsari', 380, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Hara Bhara Kabab</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Green vegetable patties made with spinach, peas, and potatoes</p>
+       <div class="item-footer"><span class="item-price">₹240</span> <span class="spice-level">Spicy: Mild</span> <button class="add-to-cart" onclick="addToCart('Hara Bhara Kabab', 240, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="non-veg">
+       <div class="item-header">
+        <h3 class="item-name">Mutton Seekh Kabab</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Minced mutton with aromatic spices, grilled on skewers</p>
+       <div class="item-footer"><span class="item-price">₹420</span> <span class="spice-level">Spicy: High</span> <button class="add-to-cart" onclick="addToCart('Mutton Seekh Kabab', 420, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+     </div>
+    </section><!-- Main Course -->
+    <section class="category-section" id="mains">
+     <div class="category-header">
+      <h2 class="category-title">Main Course</h2>
+      <p class="category-subtitle">Hearty meals crafted with love and authentic spices</p>
+     </div>
+     <div class="menu-grid">
+      <div class="menu-item" data-category="veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Dal Makhani</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span> <span class="badge bestseller-badge">Best Seller</span>
+        </div>
+       </div>
+       <p class="item-description">Slow-cooked black lentils in creamy tomato gravy with butter and cream</p>
+       <div class="item-footer"><span class="item-price">₹280</span> <span class="spice-level">Spicy: Mild</span> <button class="add-to-cart" onclick="addToCart('Dal Makhani', 280, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="non-veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Butter Chicken</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span> <span class="badge bestseller-badge">Best Seller</span>
+        </div>
+       </div>
+       <p class="item-description">Tender chicken in rich, creamy tomato-based curry with butter</p>
+       <div class="item-footer"><span class="item-price">₹380</span> <span class="spice-level">Spicy: Medium</span> <button class="add-to-cart" onclick="addToCart('Butter Chicken', 380, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Paneer Butter Masala</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Cottage cheese cubes in smooth, creamy tomato gravy</p>
+       <div class="item-footer"><span class="item-price">₹320</span> <span class="spice-level">Spicy: Medium</span> <button class="add-to-cart" onclick="addToCart('Paneer Butter Masala', 320, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="non-veg">
+       <div class="item-header">
+        <h3 class="item-name">Rogan Josh</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Aromatic lamb curry in yogurt-based gravy with Kashmiri spices</p>
+       <div class="item-footer"><span class="item-price">₹480</span> <span class="spice-level">Spicy: High</span> <button class="add-to-cart" onclick="addToCart('Rogan Josh', 480, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Veg Biryani</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Fragrant basmati rice layered with vegetables and aromatic spices</p>
+       <div class="item-footer"><span class="item-price">₹300</span> <span class="spice-level">Spicy: Medium</span> <button class="add-to-cart" onclick="addToCart('Veg Biryani', 300, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="non-veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Chicken Biryani</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span> <span class="badge bestseller-badge">Best Seller</span>
+        </div>
+       </div>
+       <p class="item-description">Hyderabadi-style biryani with tender chicken pieces and aromatic spices</p>
+       <div class="item-footer"><span class="item-price">₹380</span> <span class="spice-level">Spicy: High</span> <button class="add-to-cart" onclick="addToCart('Chicken Biryani', 380, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Palak Paneer</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Cottage cheese cubes in smooth spinach gravy with aromatic spices</p>
+       <div class="item-footer"><span class="item-price">₹300</span> <span class="spice-level">Spicy: Mild</span> <button class="add-to-cart" onclick="addToCart('Palak Paneer', 300, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="non-veg">
+       <div class="item-header">
+        <h3 class="item-name">Fish Curry</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Fresh fish cooked in coastal-style coconut and tamarind curry</p>
+       <div class="item-footer"><span class="item-price">₹420</span> <span class="spice-level">Spicy: Medium</span> <button class="add-to-cart" onclick="addToCart('Fish Curry', 420, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+     </div>
+    </section><!-- Beverages -->
+    <section class="category-section" id="beverages">
+     <div class="category-header">
+      <h2 class="category-title">Beverages</h2>
+      <p class="category-subtitle">Refreshing drinks to complement your meal</p>
+     </div>
+     <div class="menu-grid">
+      <div class="menu-item" data-category="veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Mango Lassi</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span> <span class="badge bestseller-badge">Best Seller</span>
+        </div>
+       </div>
+       <p class="item-description">Creamy yogurt drink blended with fresh mango pulp</p>
+       <div class="item-footer"><span class="item-price">₹120</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Mango Lassi', 120, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Fresh Lime Soda</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Zesty lime juice with soda water and a hint of salt or sugar</p>
+       <div class="item-footer"><span class="item-price">₹80</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Fresh Lime Soda', 80, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Masala Chai</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Traditional Indian tea with aromatic spices and milk</p>
+       <div class="item-footer"><span class="item-price">₹60</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Masala Chai', 60, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Fresh Fruit Juice</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Seasonal fresh fruit juice (Orange / Watermelon / Pomegranate)</p>
+       <div class="item-footer"><span class="item-price">₹100</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Fresh Fruit Juice', 100, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Cold Coffee</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Chilled coffee blended with milk and ice cream</p>
+       <div class="item-footer"><span class="item-price">₹140</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Cold Coffee', 140, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Buttermilk</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Traditional spiced yogurt drink with curry leaves and ginger</p>
+       <div class="item-footer"><span class="item-price">₹70</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Buttermilk', 70, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+     </div>
+    </section><!-- Desserts -->
+    <section class="category-section" id="desserts">
+     <div class="category-header">
+      <h2 class="category-title">Desserts</h2>
+      <p class="category-subtitle">Sweet endings to your perfect meal</p>
+     </div>
+     <div class="menu-grid">
+      <div class="menu-item" data-category="veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Gulab Jamun</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span> <span class="badge bestseller-badge">Best Seller</span>
+        </div>
+       </div>
+       <p class="item-description">Soft milk-solid dumplings soaked in rose-flavored sugar syrup</p>
+       <div class="item-footer"><span class="item-price">₹120</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Gulab Jamun', 120, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Rasmalai</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Soft cottage cheese patties in sweetened, thickened milk with cardamom</p>
+       <div class="item-footer"><span class="item-price">₹140</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Rasmalai', 140, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Gajar Halwa</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Grated carrots cooked with milk, sugar, and ghee, topped with nuts</p>
+       <div class="item-footer"><span class="item-price">₹160</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Gajar Halwa', 160, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Kulfi</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span> <span class="badge bestseller-badge">Best Seller</span>
+        </div>
+       </div>
+       <p class="item-description">Traditional Indian ice cream with saffron and pistachios</p>
+       <div class="item-footer"><span class="item-price">₹100</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Kulfi', 100, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Chocolate Brownie</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Warm chocolate brownie with vanilla ice cream</p>
+       <div class="item-footer"><span class="item-price">₹180</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Chocolate Brownie', 180, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg">
+       <div class="item-header">
+        <h3 class="item-name">Jalebi</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span>
+        </div>
+       </div>
+       <p class="item-description">Crispy spiral pastry soaked in saffron-flavored sugar syrup</p>
+       <div class="item-footer"><span class="item-price">₹110</span> <span class="spice-level"></span> <button class="add-to-cart" onclick="addToCart('Jalebi', 110, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+     </div>
+    </section><!-- Chef's Special -->
+    <section class="category-section" id="specials">
+     <div class="category-header">
+      <h2 class="category-title">Chef's Special</h2>
+      <p class="category-subtitle">Signature dishes crafted by our master chef</p>
+     </div>
+     <div class="menu-grid">
+      <div class="menu-item" data-category="non-veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Tandoori Platter</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span> <span class="badge bestseller-badge">Chef's Pick</span>
+        </div>
+       </div>
+       <p class="item-description">Assorted tandoori specialties - chicken tikka, seekh kabab, fish tikka, and prawns</p>
+       <div class="item-footer"><span class="item-price">₹680</span> <span class="spice-level">Spicy: High</span> <button class="add-to-cart" onclick="addToCart('Tandoori Platter', 680, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Royal Thali</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span> <span class="badge bestseller-badge">Chef's Pick</span>
+        </div>
+       </div>
+       <p class="item-description">Complete meal with 3 curries, dal, rice, roti, raita, salad, and dessert</p>
+       <div class="item-footer"><span class="item-price">₹450</span> <span class="spice-level">Spicy: Medium</span> <button class="add-to-cart" onclick="addToCart('Royal Thali', 450, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="non-veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Lamb Shank</h3>
+        <div class="item-badges"><span class="badge non-veg-badge">Non-Veg</span> <span class="badge bestseller-badge">Chef's Pick</span>
+        </div>
+       </div>
+       <p class="item-description">Slow-cooked lamb shank in aromatic gravy with exotic spices</p>
+       <div class="item-footer"><span class="item-price">₹750</span> <span class="spice-level">Spicy: Medium</span> <button class="add-to-cart" onclick="addToCart('Lamb Shank', 750, 'non-veg')">Add to Cart</button>
+       </div>
+      </div>
+      <div class="menu-item" data-category="veg bestseller">
+       <div class="item-header">
+        <h3 class="item-name">Stuffed Mushrooms</h3>
+        <div class="item-badges"><span class="badge veg-badge">Veg</span> <span class="badge bestseller-badge">Chef's Pick</span>
+        </div>
+       </div>
+       <p class="item-description">Button mushrooms stuffed with cheese, herbs, and baked to perfection</p>
+       <div class="item-footer"><span class="item-price">₹320</span> <span class="spice-level">Spicy: Mild</span> <button class="add-to-cart" onclick="addToCart('Stuffed Mushrooms', 320, 'veg')">Add to Cart</button>
+       </div>
+      </div>
+     </div>
+    </section><!-- Combos -->
+    <section class="category-section" id="combos">
+     <div class="category-header">
+      <h2 class="category-title">Special Combo Deals</h2>
+      <p class="category-subtitle">Value meals perfect for sharing</p>
+     </div>
+     <div class="combo-grid">
+      <div class="combo-item" data-category="veg"><span class="combo-tag">SAVE ₹100</span>
+       <h3 class="combo-title">Veg Paradise Combo</h3>
+       <div class="combo-items">
+        <div>
+         Paneer Tikka (Starter)
+        </div>
+        <div>
+         Dal Makhani (Main)
+        </div>
+        <div>
+         Veg Biryani
+        </div>
+        <div>
+         2 Rotis
+        </div>
+        <div>
+         Raita &amp; Salad
+        </div>
+        <div>
+         Gulab Jamun (Dessert)
+        </div>
+        <div>
+         2 Lassi
+        </div>
+       </div>
+       <div class="combo-price"><span class="original-price">₹1,200</span> <span class="combo-final-price">₹1,099</span>
+       </div><button class="combo-add-button" onclick="addToCart('Veg Paradise Combo', 1099, 'veg')">Add Combo to Cart</button>
+      </div>
+      <div class="combo-item" data-category="non-veg bestseller"><span class="combo-tag">SAVE ₹150</span>
+       <h3 class="combo-title">Non-Veg Feast Combo</h3>
+       <div class="combo-items">
+        <div>
+         Chicken Tikka (Starter)
+        </div>
+        <div>
+         Butter Chicken (Main)
+        </div>
+        <div>
+         Chicken Biryani
+        </div>
+        <div>
+         3 Naan
+        </div>
+        <div>
+         Raita &amp; Salad
+        </div>
+        <div>
+         Kulfi (Dessert)
+        </div>
+        <div>
+         2 Cold Drinks
+        </div>
+       </div>
+       <div class="combo-price"><span class="original-price">₹1,500</span> <span class="combo-final-price">₹1,349</span>
+       </div><button class="combo-add-button" onclick="addToCart('Non-Veg Feast Combo', 1349, 'non-veg')">Add Combo to Cart</button>
+      </div>
+      <div class="combo-item" data-category="veg"><span class="combo-tag">SAVE ₹80</span>
+       <h3 class="combo-title">Quick Lunch Special</h3>
+       <div class="combo-items">
+        <div>
+         Any 2 Curries
+        </div>
+        <div>
+         Dal / Rice
+        </div>
+        <div>
+         2 Rotis
+        </div>
+        <div>
+         Raita
+        </div>
+        <div>
+         Beverage
+        </div>
+       </div>
+       <div class="combo-price"><span class="original-price">₹550</span> <span class="combo-final-price">₹469</span>
+       </div><button class="combo-add-button" onclick="addToCart('Quick Lunch Special', 469, 'veg')">Add Combo to Cart</button>
+      </div>
+      <div class="combo-item" data-category="non-veg"><span class="combo-tag">SAVE ₹200</span>
+       <h3 class="combo-title">Family Feast Combo</h3>
+       <div class="combo-items">
+        <div>
+         Veg &amp; Non-Veg Starters (2 each)
+        </div>
+        <div>
+         3 Main Courses (Choice)
+        </div>
+        <div>
+         Biryani (Large)
+        </div>
+        <div>
+         6 Rotis / Naans
+        </div>
+        <div>
+         2 Desserts
+        </div>
+        <div>
+         4 Beverages
+        </div>
+       </div>
+       <div class="combo-price"><span class="original-price">₹2,800</span> <span class="combo-final-price">₹2,599</span>
+       </div><button class="combo-add-button" onclick="addToCart('Family Feast Combo', 2599, 'non-veg')">Add Combo to Cart</button>
+      </div>
+     </div>
+    </section>
+   </div><!-- Footer -->
+   <footer class="footer">
+    <div class="footer-content">
+     <div class="footer-sections">
+      <div class="footer-section">
+       <h3>Contact Us</h3>
+       <p id="footerAddress">123 MG Road, Bangalore, Karnataka 560001</p>
+       <p id="footerContact">Phone: +91 98765 43210</p>
+       <p>Email: info@spicegarden.com</p>
+      </div>
+      <div class="footer-section">
+       <h3>Opening Hours</h3>
+       <p id="footerHours">Monday - Sunday</p>
+       <p>11:00 AM - 11:00 PM</p>
+       <p>Kitchen closes at 10:30 PM</p>
+      </div>
+      <div class="footer-section">
+       <h3>Quick Links</h3><a href="#" onclick="event.preventDefault()">About Us</a> <a href="#" onclick="event.preventDefault()">Catering Services</a> <a href="#" onclick="event.preventDefault()">Private Events</a> <a href="#" onclick="event.preventDefault()">Gift Cards</a>
+      </div>
+      <div class="footer-section">
+       <h3>Order Online</h3><a href="https://zomato.com" target="_blank" rel="noopener noreferrer">Order on Zomato</a> <a href="https://swiggy.com" target="_blank" rel="noopener noreferrer">Order on Swiggy</a>
+       <p>Delivery: 12:00 PM - 10:30 PM</p>
+      </div>
+     </div>
+     <div class="footer-disclaimer">
+      <p id="footerDisclaimer">All prices are inclusive of taxes | Home delivery available within 5 km radius | Minimum order: ₹300</p>
+      <p class="thank-you" id="thankYouMessage">Thank you for choosing Spice Garden. We look forward to serving you!</p>
+     </div>
+    </div>
+   </footer><!-- Cart Modal -->
+   <div class="cart-overlay" id="cartOverlay">
+    <div class="cart-modal">
+     <div class="cart-header">
+      <h2>Your Order</h2><button class="close-cart" onclick="toggleCart()">×</button>
+     </div>
+     <div class="cart-items" id="cartItemsContainer">
+      <div class="empty-cart">
+       <div class="empty-cart-icon">
+        🛒
+       </div>
+       <p>Your cart is empty</p>
+       <p style="font-size: 0.9rem; margin-top: 0.5rem;">Add some delicious items to get started!</p>
+      </div>
+     </div>
+     <div class="cart-footer" id="cartFooter" style="display: none;">
+      <div class="cart-summary">
+       <div class="summary-row"><span>Subtotal</span> <span id="subtotal">₹0</span>
+       </div>
+       <div class="summary-row"><span>Delivery Fee</span> <span id="deliveryFee">₹50</span>
+       </div>
+       <div class="summary-row"><span>GST (5%)</span> <span id="gst">₹0</span>
+       </div>
+       <div class="summary-row total"><span>Total</span> <span id="totalAmount">₹0</span>
+       </div>
+      </div>
+      <div class="checkout-section"><input type="text" class="delivery-input" id="deliveryAddress" placeholder="Enter delivery address"> <input type="tel" class="delivery-input" id="deliveryPhone" placeholder="Contact number"> <button class="checkout-btn" id="checkoutBtn" onclick="processOrder()">Place Order</button>
+      </div>
+     </div>
+    </div>
+   </div>
   </div>
-</div>
+  <script>
+    const defaultConfig = {
+      restaurant_name: "Spice Garden",
+      tagline: "Authentic Indian Flavors with a Modern Twist",
+      opening_hours: "Open Daily: 11:00 AM - 11:00 PM",
+      contact_info: "+91 98765 43210",
+      address: "123 MG Road, Bangalore, Karnataka 560001",
+      footer_disclaimer: "All prices are inclusive of taxes | Home delivery available within 5 km radius | Minimum order: ₹300",
+      thank_you_message: "Thank you for choosing Spice Garden. We look forward to serving you!",
+      background_color: "#0f1419",
+      primary_color: "#d4af37",
+      text_color: "#ffffff",
+      secondary_surface_color: "rgba(26,35,50,0.9)",
+      button_color: "#d4af37"
+    };
 
-<!-- FOOTER -->
-<footer>
-  <p id="footerAddress"></p>
-  <p id="footerContact"></p>
-  <small id="footerDisclaimer"></small>
-</footer>
+    let cart = [];
 
-<script src="script.js"></script>
-</body>
+    async function onConfigChange(config) {
+      document.getElementById('restaurantName').textContent = config.restaurant_name || defaultConfig.restaurant_name;
+      document.getElementById('tagline').textContent = config.tagline || defaultConfig.tagline;
+      document.getElementById('topOpeningHours').textContent = config.opening_hours || defaultConfig.opening_hours;
+      document.getElementById('topContactInfo').textContent = 'Call: ' + (config.contact_info || defaultConfig.contact_info);
+      document.getElementById('footerAddress').textContent = config.address || defaultConfig.address;
+      document.getElementById('footerContact').textContent = 'Phone: ' + (config.contact_info || defaultConfig.contact_info);
+      document.getElementById('footerHours').textContent = config.opening_hours || defaultConfig.opening_hours;
+      document.getElementById('footerDisclaimer').textContent = config.footer_disclaimer || defaultConfig.footer_disclaimer;
+      document.getElementById('thankYouMessage').textContent = config.thank_you_message || defaultConfig.thank_you_message;
+
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const primaryColor = config.primary_color || defaultConfig.primary_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const surfaceColor = config.secondary_surface_color || defaultConfig.secondary_surface_color;
+      const buttonColor = config.button_color || defaultConfig.button_color;
+
+      document.querySelector('.main-wrapper').style.background = `linear-gradient(to bottom, ${backgroundColor}, #1a2332)`;
+      
+      const categoryTitles = document.querySelectorAll('.category-title');
+      categoryTitles.forEach(title => {
+        title.style.color = primaryColor;
+      });
+
+      const prices = document.querySelectorAll('.item-price, .combo-final-price');
+      prices.forEach(price => {
+        price.style.color = primaryColor;
+      });
+
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach(item => {
+        item.style.background = `linear-gradient(135deg, ${surfaceColor}, rgba(15,20,25,0.9))`;
+        item.style.borderColor = `${primaryColor}33`;
+      });
+
+      const buttons = document.querySelectorAll('.add-to-cart, .cart-button, .combo-add-button');
+      buttons.forEach(button => {
+        button.style.background = buttonColor;
+      });
+
+      document.body.style.color = textColor;
+    }
+
+    function filterMenu(category) {
+      const allItems = document.querySelectorAll('.menu-item, .combo-item');
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      allItems.forEach(item => {
+        if (category === 'all') {
+          item.style.display = 'block';
+        } else {
+          const categories = item.getAttribute('data-category');
+          if (categories && categories.includes(category)) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    function addToCart(itemName, price, type) {
+      const existingItem = cart.find(item => item.name === itemName);
+      
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        cart.push({
+          id: Date.now(),
+          name: itemName,
+          price: price,
+          type: type,
+          quantity: 1
+        });
+      }
+      
+      updateCart();
+      
+      const button = event.target;
+      const originalText = button.textContent;
+      button.textContent = 'Added!';
+      button.style.background = '#28a745';
+      
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.background = '#d4af37';
+      }, 1000);
+    }
+
+    function updateCart() {
+      const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const headerBadge = document.getElementById('headerCartCount');
+      
+      if (cartCount > 0) {
+        headerBadge.textContent = cartCount;
+        headerBadge.style.display = 'flex';
+      } else {
+        headerBadge.style.display = 'none';
+      }
+      
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartItemsContainer');
+      const footer = document.getElementById('cartFooter');
+      
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <div class="empty-cart-icon">&#128722;</div>
+            <p>Your cart is empty</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Add some delicious items to get started!</p>
+          </div>
+        `;
+        footer.style.display = 'none';
+        return;
+      }
+      
+      footer.style.display = 'block';
+      
+      let html = '';
+      cart.forEach(item => {
+        html += `
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              <div class="cart-item-controls">
+                <div class="qty-control">
+                  <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                  <span class="qty-display">${item.quantity}</span>
+                  <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                </div>
+                <button class="remove-item" onclick="removeItem(${item.id})">Remove</button>
+              </div>
+            </div>
+            <div class="cart-item-price">₹${item.price * item.quantity}</div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+      
+      updatePricing();
+    }
+
+    function updateQuantity(itemId, change) {
+      const item = cart.find(i => i.id === itemId);
+      if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+          removeItem(itemId);
+        } else {
+          updateCart();
+        }
+      }
+    }
+
+    function removeItem(itemId) {
+      cart = cart.filter(item => item.id !== itemId);
+      updateCart();
+    }
+
+    function updatePricing() {
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const deliveryFee = subtotal >= 300 ? 50 : 0;
+      const gst = Math.round(subtotal * 0.05);
+      const total = subtotal + deliveryFee + gst;
+      
+      document.getElementById('subtotal').textContent = `₹${subtotal}`;
+      document.getElementById('deliveryFee').textContent = `₹${deliveryFee}`;
+      document.getElementById('gst').textContent = `₹${gst}`;
+      document.getElementById('totalAmount').textContent = `₹${total}`;
+      
+      const checkoutBtn = document.getElementById('checkoutBtn');
+      if (subtotal < 300) {
+        checkoutBtn.disabled = true;
+        checkoutBtn.textContent = `Minimum Order: ₹300 (₹${300 - subtotal} more needed)`;
+      } else {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Place Order';
+      }
+    }
+
+    function toggleCart() {
+      const overlay = document.getElementById('cartOverlay');
+      overlay.classList.toggle('active');
+    }
+
+    function processOrder() {
+      const address = document.getElementById('deliveryAddress').value.trim();
+      const phone = document.getElementById('deliveryPhone').value.trim();
+      
+      if (!address || !phone) {
+        const message = document.createElement('div');
+        message.className = 'success-message';
+        message.style.borderColor = '#dc3545';
+        message.innerHTML = `
+          <div class="success-icon" style="color: #dc3545;">!</div>
+          <div class="success-text" style="color: #dc3545;">Missing Information</div>
+          <div class="success-subtext">Please enter delivery address and phone number</div>
+        `;
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 2500);
+        return;
+      }
+      
+      const total = document.getElementById('totalAmount').textContent;
+      const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      
+      const message = document.createElement('div');
+      message.className = 'success-message';
+      message.innerHTML = `
+        <div class="success-icon">&#10003;</div>
+        <div class="success-text">Order Placed Successfully!</div>
+        <div class="success-subtext">${itemCount} items | Total: ${total}</div>
+        <div class="success-subtext" style="margin-top: 1rem;">Estimated delivery: 30-45 minutes</div>
+      `;
+      document.body.appendChild(message);
+      
+      cart = [];
+      updateCart();
+      toggleCart();
+      
+      document.getElementById('deliveryAddress').value = '';
+      document.getElementById('deliveryPhone').value = '';
+      
+      setTimeout(() => message.remove(), 4000);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_surface_color || defaultConfig.secondary_surface_color,
+              set: (value) => {
+                config.secondary_surface_color = value;
+                window.elementSdk.setConfig({ secondary_surface_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.primary_color || defaultConfig.primary_color,
+              set: (value) => {
+                config.primary_color = value;
+                window.elementSdk.setConfig({ primary_color: value });
+              }
+            },
+            {
+              get: () => config.button_color || defaultConfig.button_color,
+              set: (value) => {
+                config.button_color = value;
+                window.elementSdk.setConfig({ button_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["restaurant_name", config.restaurant_name || defaultConfig.restaurant_name],
+          ["tagline", config.tagline || defaultConfig.tagline],
+          ["opening_hours", config.opening_hours || defaultConfig.opening_hours],
+          ["contact_info", config.contact_info || defaultConfig.contact_info],
+          ["address", config.address || defaultConfig.address],
+          ["footer_disclaimer", config.footer_disclaimer || defaultConfig.footer_disclaimer],
+          ["thank_you_message", config.thank_you_message || defaultConfig.thank_you_message]
+        ])
+      });
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ad3361372f8a834',t:'MTc2NTYwNTMxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
